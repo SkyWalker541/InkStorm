@@ -1,0 +1,74 @@
+name: Compile Release
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Compile release builds"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Cache PlatformIO packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          key: ${{ runner.os }}-platformio-${{ hashFiles('platformio.ini', 'platformio.local.example.ini') }}
+          restore-keys: |
+            ${{ runner.os }}-platformio-
+
+      - name: Install PlatformIO Core
+        run: uv pip install --system -U https://github.com/pioarduino/platformio-core/archive/refs/tags/v6.1.19.zip
+
+      - name: Resolve release version
+        run: |
+          VERSION="${{ inputs.version }}"
+          VERSION="${VERSION#v}"
+          echo "RELEASE_VERSION=$VERSION" >> "$GITHUB_ENV"
+          sed -i "/^\[crossink\]$/,/^\[/s/^version = .*/version = $VERSION/" platformio.ini
+
+      - name: Build universal firmware
+        env:
+          CROSSINK_RELEASE_VERSION: ${{ env.RELEASE_VERSION }}
+        run: pio run -j1 -e universal
+
+      - name: Stage dual-boot partition artifacts
+        run: |
+          set -euo pipefail
+          BUILT=".pio/build/universal/firmware-universal-v${{ env.RELEASE_VERSION }}.bin"
+          test -f "$BUILT"
+          mkdir -p .pio/build/release
+          cp "$BUILT" ".pio/build/release/firmware-app0-crossink-v${{ env.RELEASE_VERSION }}.bin"
+          cp "$BUILT" ".pio/build/release/firmware-app1-inkstorm-v${{ env.RELEASE_VERSION }}.bin"
+          echo "Staged dual-boot artifacts:"
+          ls -la .pio/build/release/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: v${{ env.RELEASE_VERSION }}
+          target_commitish: ${{ github.sha }}
+          draft: true
+          files: |
+            .pio/build/release/firmware-app0-crossink-v${{ env.RELEASE_VERSION }}.bin
+            .pio/build/release/firmware-app1-inkstorm-v${{ env.RELEASE_VERSION }}.bin
