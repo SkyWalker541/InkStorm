@@ -69,7 +69,7 @@ app's settings and enter your **city or ZIP code** to get started.
 ### Option 1 — Online flasher (recommended)
 
 No software to install. Open
-**[inkstorm flasher](https://skywalker541.github.io/InkStorm/flash.html)** in
+**[InkStorm flasher](https://skywalker541.github.io/InkStorm/flash.html)** in
 **Chrome or Microsoft Edge** on a desktop/laptop and follow the on-screen steps.
 
 > **Browser support:** the flasher uses the browser's Web Serial API, which only
