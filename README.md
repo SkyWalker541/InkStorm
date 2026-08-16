@@ -8,6 +8,14 @@
   <img src="./docs/images/inkstorm-logo.png" alt="InkStorm Logo" width="200"/>
 </p>
 
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/5c6b5a2f-49a1-45f3-9d59-d158ac2462f5" width="300" />&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/user-attachments/assets/edfc524e-26a1-4603-a1a6-7eeecbc89b49" width="300" />
+</p>
+
+</div>
+
+</p>
+
 ## What is this?
 
 One universal binary, flashed to two partitions:
