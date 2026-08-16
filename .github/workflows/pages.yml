@@ -1,12 +1,10 @@
 name: Deploy Pages
 
+# Deploys the docs + flasher site to GitHub Pages (github.io project site).
+
 on:
   push:
     branches: [main]
-    paths:
-      - "docs/**"
-      - "site/**"
-      - ".github/workflows/pages.yml"
   workflow_dispatch:
 
 permissions:

@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>InkStorm Installer</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <meta
+      name="description"
+      content="Install the InkStorm dual-boot firmware (CrossInk e-reader + InkStorm weather) on your Xteink X3 or X4 e-ink reader from the browser."
+    />
+  </head>
+  <body>
+    <main class="wrap">
+      <header>
+        <h1>InkStorm Installer</h1>
+        <p class="tagline">
+          Installs the <strong>InkStorm dual-boot firmware</strong> on your
+          Xteink X3 or X4 e-ink reader — <strong>CrossInk</strong> e-reader on
+          <code>app0</code>, <strong>InkStorm</strong> weather on
+          <code>app1</code>. No software to install.
+        </p>
+      </header>
+
+      <section class="card warn">
+        <h2>Browser support</h2>
+        <p>
+          This installer uses the Web Serial API, which is currently supported
+          only in <strong>Chrome</strong> and <strong>Microsoft Edge</strong> on
+          desktop computers. It does <strong>not</strong> work in Safari,
+          Firefox, or on phones and tablets.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>Before you start</h2>
+        <ul>
+          <li>Connect your device to the computer with a <strong>USB data cable</strong> (not a charge-only cable).</li>
+          <li>Wake or unlock the device so it is showing its home screen.</li>
+          <li>Your device must be an <strong>Xteink X3 or X4</strong> with USB flashing enabled. USB-locked devices cannot be flashed this way.</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>What happens</h2>
+        <ol class="steps" id="steps">
+          <li data-step="0">Connect to device</li>
+          <li data-step="1">Check partition table</li>
+          <li data-step="2">Install CrossInk (app0)</li>
+          <li data-step="3">Install InkStorm (app1)</li>
+          <li data-step="4">Set default boot to CrossInk</li>
+          <li data-step="5">Reset device</li>
+        </ol>
+        <div class="progress"><div id="bar" class="bar"></div></div>
+        <p id="status" class="status">Ready.</p>
+        <pre id="log" class="log" hidden></pre>
+        <button id="install" type="button">Connect &amp; Install</button>
+        <p id="err" class="err" role="alert"></p>
+      </section>
+
+      <footer>
+        <p>
+          InkStorm is built on <a href="https://github.com/uxjulia/CrossInk">CrossInk</a> by
+          uxjulia and <a href="https://github.com/crosspoint-reader/crosspoint-reader">CrossPoint Reader</a>.
+        </p>
+      </footer>
+    </main>
+
+    <style>
+      :root {
+        --ink: #1a1a1a;
+        --paper: #faf9f5;
+        --accent: #0a5c3f;
+        --accent-dark: #083f2c;
+        --muted: #666;
+        --line: #ddd8cc;
+        --warn-bg: #fff4e0;
+        --warn-line: #e0b558;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      }
+      .wrap { max-width: 680px; margin: 0 auto; padding: 2rem 1.25rem 3rem; }
+      header h1 { font-size: 2rem; margin: 0 0 0.4rem; }
+      .tagline { color: var(--muted); margin: 0 0 1.5rem; }
+      code {
+        background: #eeeadd;
+        border-radius: 4px;
+        padding: 0.1em 0.35em;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.9em;
+      }
+      .card {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 1.1rem 1.4rem;
+        margin: 0 0 1.1rem;
+      }
+      .card h2 { font-size: 1.05rem; margin: 0 0 0.6rem; }
+      .card ul { margin: 0; padding-left: 1.2rem; }
+      .card li { margin: 0.25rem 0; }
+      .warn { background: var(--warn-bg); border-color: var(--warn-line); }
+      .steps { margin: 0 0 1rem; padding-left: 1.4rem; }
+      .steps li { padding: 0.15rem 0; color: var(--muted); }
+      .steps li.done { color: var(--accent); }
+      .steps li.done::marker { content: "✓ "; }
+      .steps li.active { color: var(--ink); font-weight: 600; }
+      .progress {
+        height: 10px;
+        border-radius: 6px;
+        background: #eeeadd;
+        overflow: hidden;
+        margin-bottom: 0.7rem;
+      }
+      .bar { width: 0%; height: 100%; background: var(--accent); transition: width 0.2s ease; }
+      .status { min-height: 1.4em; margin: 0 0 0.8rem; font-weight: 500; }
+      .log {
+        background: #181818;
+        color: #d8e8d8;
+        border-radius: 8px;
+        padding: 0.8rem 1rem;
+        font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        overflow-x: auto;
+        max-height: 220px;
+        overflow-y: auto;
+      }
+      .err { color: #a20d0d; margin: 0.8rem 0 0; font-weight: 500; }
+      button#install {
+        margin-top: 0.6rem;
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.05rem;
+        font-weight: 600;
+        padding: 0.7rem 1.4rem;
+        cursor: pointer;
+      }
+      button#install:hover { background: var(--accent-dark); }
+      button#install:disabled { opacity: 0.6; cursor: default; }
+      footer { color: var(--muted); font-size: 0.85rem; margin-top: 2rem; }
+      footer a { color: var(--accent); }
+    </style>
+
+    <script>
+      import { InkStormFlasher, fetchFirmware } from "../../lib/flash/flasher.mjs";
+
+      const btn = document.getElementById("install");
+      const steps = [...document.querySelectorAll("#steps li")];
+      const bar = document.getElementById("bar");
+      const status = document.getElementById("status");
+      const logEl = document.getElementById("log");
+      const errEl = document.getElementById("err");
+
+      function log(msg) {
+        logEl.hidden = false;
+        logEl.textContent += msg + "\n";
+        logEl.scrollTop = logEl.scrollHeight;
+      }
+
+      function setStep(idx, state) {
+        const el = steps.find((s) => Number(s.dataset.step) === idx);
+        if (!el) return;
+        el.classList.remove("done", "active");
+        if (state === "done") el.classList.add("done");
+        else if (state === "running") el.classList.add("active");
+      }
+
+      function progress(label, written, total) {
+        const pct = total > 0 ? written / total : 0;
+        bar.style.width = `${Math.round(Math.max(0, Math.min(1, pct)) * 100)}%`;
+        status.textContent = `${label} — ${Math.round(pct * 100)}%`;
+      }
+
+      btn.addEventListener("click", async () => {
+        btn.disabled = true;
+        btn.textContent = "Working…";
+        bar.style.width = "0%";
+        errEl.textContent = "";
+        logEl.textContent = "";
+
+        try {
+          // requestPort must run in the user gesture, before any awaits.
+          status.textContent = "Select your device in the browser window…";
+          const port = await InkStormFlasher.requestPort();
+
+          status.textContent = "Downloading firmware…";
+          const [app0, app1] = await Promise.all([
+            fetchFirmware("firmware-app0-crossink-v1.0.0.bin"),
+            fetchFirmware("firmware-app1-inkstorm-v1.0.0.bin"),
+          ]);
+
+          const flasher = new InkStormFlasher(port);
+          await flasher.install({ app0, app1, onStepChange: setStep, onProgress: progress, onLog: log });
+
+          bar.style.width = "100%";
+          status.textContent = "Done! The device is booting into CrossInk.";
+          log("Complete.");
+        } catch (err) {
+          errEl.textContent = err.message || String(err);
+          status.textContent = "Install failed. See the message above.";
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "Connect & Install";
+        }
+      });
+    </script>
+  </body>
+</html>

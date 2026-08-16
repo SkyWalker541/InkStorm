@@ -21,13 +21,16 @@ weather app). **Both partitions are required and only work together.**
 
 ## Web Installation via USB
 
-The web flasher flashes one partition at a time, so run it twice:
+Use the **InkStorm web flasher** — it downloads both firmware files, verifies
+them, and writes CrossInk to `app0` and InkStorm to `app1` in a single run.
 
-1. Navigate to [https://crosspointreader.com/#flash-tools](https://crosspointreader.com/#flash-tools) and select your device model.
-2. Choose **Custom Firmware** and upload **`firmware-app0-crossink-v1.0.0.bin`** at offset **`0x10000`**.
-3. Click **Flash Firmware** and wait for completion.
-4. Repeat with **`firmware-app1-inkstorm-v1.0.0.bin`** at offset **`0x650000`**.
-5. The device reboots into CrossInk.
+1. Open [https://skywalker541.github.io/InkStorm/flash.html](https://skywalker541.github.io/InkStorm/flash.html) in **Chrome or Microsoft Edge** on a desktop or laptop.
+2. Connect the device with USB-C and click **Connect**.
+3. Follow the steps on screen — the flasher writes both partitions and resets the device.
+
+> **Browser support:** the flasher uses the browser's Web Serial API, which only
+> **Chrome and Microsoft Edge** support. **Safari, Firefox, and phones/tablets
+> will not work.**
 
 > **Note:** After flashing, the device may briefly show a boot diagnostic
 > message (e.g., "rst:" or "crash dump"). This is normal ESP32 behavior after a

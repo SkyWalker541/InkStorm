@@ -61,5 +61,9 @@ export default defineConfig({
   vite: {
     plugins: [watchExternalDocs()],
   },
-  site: "https://www.crossink.dev",
+  // GitHub Pages project site: served under /InkStorm/ on the default
+  // <owner>.github.io domain (the crossink.dev custom domain belongs to the
+  // upstream CrossInk project and cannot be used here).
+  site: "https://skywalker541.github.io",
+  base: "/InkStorm",
 });
