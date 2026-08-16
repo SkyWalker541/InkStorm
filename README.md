@@ -65,8 +65,7 @@ app's settings and enter your **city or ZIP code** to get started.
   cooldown after failures.
 - **Manual refresh** — the back button, the menu's "Update now", or the power
   button.
-- **Units & layout** — °C/°F, 12/24-hour clock, km/h or mph wind, portrait or
-  landscape, city search.
+- **Units & layout** — °C/°F, 12/24-hour clock, km/h or mph wind, city search.
 
 ## Installation
 
