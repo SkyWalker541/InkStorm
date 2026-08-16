@@ -187,8 +187,8 @@ WifiSelectionActivity::WifiSelectionActivity(GfxRenderer& renderer, MappedInputM
 
 // Centralized hint drawing: weather-launched popups use symbol hints (X, checkmark,
 // arrows) instead of text labels so they match the weather UI style.
-static void drawWifiButtonHints(GfxRenderer& renderer, MappedInputManager& input, bool weatherStyle,
-                                 bool readerStyle, const char* l1, const char* l2, const char* l3, const char* l4) {
+static void drawWifiButtonHints(GfxRenderer& renderer, MappedInputManager& input, bool weatherStyle, bool readerStyle,
+                                const char* l1, const char* l2, const char* l3, const char* l4) {
   if (weatherStyle) {
     const auto s = input.mapSymbols(ButtonHintSymbol::Close, ButtonHintSymbol::Select, ButtonHintSymbol::Up,
                                     ButtonHintSymbol::Down);
@@ -1235,8 +1235,8 @@ void WifiSelectionActivity::renderNetworkList(const Rect* screen, const ThemeMet
   const char* forgetLabel = hasSavedPassword ? tr(STR_FORGET_BUTTON) : "";
 
   const auto labels = mappedInput.mapLabels(tr(STR_BACK), tr(STR_CONNECT), forgetLabel, tr(STR_RETRY));
-  drawWifiButtonHints(renderer, mappedInput, useWeatherButtonHints, useReaderButtonHints,
-                      labels.btn1, labels.btn2, labels.btn3, labels.btn4);
+  drawWifiButtonHints(renderer, mappedInput, useWeatherButtonHints, useReaderButtonHints, labels.btn1, labels.btn2,
+                      labels.btn3, labels.btn4);
 }
 
 void WifiSelectionActivity::renderConnecting(const Rect* screen, const ThemeMetrics* metrics) const {
@@ -1248,8 +1248,8 @@ void WifiSelectionActivity::renderConnecting(const Rect* screen, const ThemeMetr
                               autoConnecting ? tr(STR_FINDING_SAVED_WIFI) : tr(STR_SCANNING));
     if (autoConnecting) {
       const auto labels = mappedInput.mapLabels(tr(STR_CANCEL), tr(STR_SHOW_NETWORKS), "", "");
-      drawWifiButtonHints(renderer, mappedInput, useWeatherButtonHints, useReaderButtonHints,
-                      labels.btn1, labels.btn2, labels.btn3, labels.btn4);
+      drawWifiButtonHints(renderer, mappedInput, useWeatherButtonHints, useReaderButtonHints, labels.btn1, labels.btn2,
+                          labels.btn3, labels.btn4);
     }
   } else {
     UITheme::drawCenteredText(renderer, *screen, UI_12_FONT_ID, top - 40,
@@ -1267,15 +1267,15 @@ void WifiSelectionActivity::renderConnecting(const Rect* screen, const ThemeMetr
     }
     if (autoConnecting) {
       const auto labels = mappedInput.mapLabels(tr(STR_CANCEL), tr(STR_SHOW_NETWORKS), "", "");
-      drawWifiButtonHints(renderer, mappedInput, useWeatherButtonHints, useReaderButtonHints,
-                      labels.btn1, labels.btn2, labels.btn3, labels.btn4);
+      drawWifiButtonHints(renderer, mappedInput, useWeatherButtonHints, useReaderButtonHints, labels.btn1, labels.btn2,
+                          labels.btn3, labels.btn4);
     }
   }
 
   if (!autoConnecting) {
     const auto labels = mappedInput.mapLabels(tr(STR_BACK), "", "", "");
-    drawWifiButtonHints(renderer, mappedInput, useWeatherButtonHints, useReaderButtonHints,
-                      labels.btn1, labels.btn2, labels.btn3, labels.btn4);
+    drawWifiButtonHints(renderer, mappedInput, useWeatherButtonHints, useReaderButtonHints, labels.btn1, labels.btn2,
+                        labels.btn3, labels.btn4);
   }
 }
 
@@ -1296,8 +1296,8 @@ void WifiSelectionActivity::renderConnected(const Rect* screen, const ThemeMetri
 
   // Use centralized button hints
   const auto labels = mappedInput.mapLabels("", tr(STR_DONE), "", "");
-  drawWifiButtonHints(renderer, mappedInput, useWeatherButtonHints, useReaderButtonHints,
-                      labels.btn1, labels.btn2, labels.btn3, labels.btn4);
+  drawWifiButtonHints(renderer, mappedInput, useWeatherButtonHints, useReaderButtonHints, labels.btn1, labels.btn2,
+                      labels.btn3, labels.btn4);
 }
 
 void WifiSelectionActivity::renderSavePrompt(const Rect* screen, const ThemeMetrics* metrics) const {
@@ -1339,8 +1339,8 @@ void WifiSelectionActivity::renderSavePrompt(const Rect* screen, const ThemeMetr
 
   // Use centralized button hints
   const auto labels = mappedInput.mapLabels(tr(STR_CANCEL), tr(STR_SELECT), tr(STR_DIR_LEFT), tr(STR_DIR_RIGHT));
-  drawWifiButtonHints(renderer, mappedInput, useWeatherButtonHints, useReaderButtonHints,
-                      labels.btn1, labels.btn2, labels.btn3, labels.btn4);
+  drawWifiButtonHints(renderer, mappedInput, useWeatherButtonHints, useReaderButtonHints, labels.btn1, labels.btn2,
+                      labels.btn3, labels.btn4);
 }
 
 void WifiSelectionActivity::renderConnectionFailed(const Rect* screen, const ThemeMetrics* metrics) const {
@@ -1359,8 +1359,8 @@ void WifiSelectionActivity::renderConnectionFailed(const Rect* screen, const The
 
   // Use centralized button hints
   const auto labels = mappedInput.mapLabels(tr(STR_BACK), tr(STR_DONE), "", "");
-  drawWifiButtonHints(renderer, mappedInput, useWeatherButtonHints, useReaderButtonHints,
-                      labels.btn1, labels.btn2, labels.btn3, labels.btn4);
+  drawWifiButtonHints(renderer, mappedInput, useWeatherButtonHints, useReaderButtonHints, labels.btn1, labels.btn2,
+                      labels.btn3, labels.btn4);
 }
 
 void WifiSelectionActivity::renderForgetPrompt(const Rect* screen, const ThemeMetrics* metrics) const {
@@ -1403,8 +1403,8 @@ void WifiSelectionActivity::renderForgetPrompt(const Rect* screen, const ThemeMe
 
   // Use centralized button hints
   const auto labels = mappedInput.mapLabels(tr(STR_BACK), tr(STR_SELECT), tr(STR_DIR_LEFT), tr(STR_DIR_RIGHT));
-  drawWifiButtonHints(renderer, mappedInput, useWeatherButtonHints, useReaderButtonHints,
-                      labels.btn1, labels.btn2, labels.btn3, labels.btn4);
+  drawWifiButtonHints(renderer, mappedInput, useWeatherButtonHints, useReaderButtonHints, labels.btn1, labels.btn2,
+                      labels.btn3, labels.btn4);
 }
 
 void WifiSelectionActivity::onComplete(const bool connected) {

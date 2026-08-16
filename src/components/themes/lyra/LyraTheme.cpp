@@ -749,7 +749,8 @@ void LyraTheme::drawButtonMenu(GfxRenderer& renderer, Rect rect, int buttonCount
         renderer.drawIcon(ChartIcon, textX, textY + 3 + mainMenuIconYOffset(icon), mainMenuIconSize, mainMenuIconSize);
         textX += mainMenuIconSize + hPaddingInSelection + 2;
       } else if (icon == UIIcon::Weather) {
-        renderer.drawIcon(WeatherIcon, textX, textY + 3 + mainMenuIconYOffset(icon), mainMenuIconSize, mainMenuIconSize);
+        renderer.drawIcon(WeatherIcon, textX, textY + 3 + mainMenuIconYOffset(icon), mainMenuIconSize,
+                          mainMenuIconSize);
         textX += mainMenuIconSize + hPaddingInSelection + 2;
       } else {
         const freeink::Icon* iconBitmap = iconForName(icon, mainMenuIconSize);

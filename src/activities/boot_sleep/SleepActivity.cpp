@@ -584,8 +584,8 @@ void SleepActivity::renderDefaultSleepScreen() const {
   constexpr int kLogoPlusGap = 20;
   constexpr int kTextGap = 25;
 
-  const int totalContentHeight =
-      kLogoSize + kLogoPlusGap + kPlusSize + kLogoPlusGap + kLogoSize + kTextGap + renderer.getLineHeight(UI_10_FONT_ID);
+  const int totalContentHeight = kLogoSize + kLogoPlusGap + kPlusSize + kLogoPlusGap + kLogoSize + kTextGap +
+                                 renderer.getLineHeight(UI_10_FONT_ID);
   const int startY = (pageHeight - totalContentHeight) / 2;
 
   // CrossInk logo (top)

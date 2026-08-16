@@ -5,27 +5,27 @@
 #include <Logging.h>
 #include <SdCardFontSystem.h>
 #include <WiFi.h>
+#include <time.h>
 
 #include <cmath>
 #include <cstdio>
 #include <cstring>
 #include <string>
-#include <time.h>
 
+#include "CrossPointSettings.h"
 #include "MappedInputManager.h"
 #include "activities/ActivityResult.h"
 #include "activities/RenderLock.h"
 #include "activities/network/WifiSelectionActivity.h"
 #include "components/UITheme.h"
-#include "CrossPointSettings.h"
 #include "fontIds.h"
+#include "images/Logo120.h"
+#include "util/BootPartition.h"
+#include "weather/WeatherApi.h"
+#include "weather/WeatherIcons.h"
 #include "weather/WeatherRenderUtils.h"
 #include "weather/WeatherSettingsActivity.h"
 #include "weather/WxSettings.h"
-#include "weather/WeatherApi.h"
-#include "images/Logo120.h"
-#include "weather/WeatherIcons.h"
-#include "util/BootPartition.h"
 
 // Minimum gap between WiFi radio power-cycles during framebuffer recovery.
 // Prevents a reconnect storm when the realloc stays blocked for a long time.
@@ -43,8 +43,8 @@ static constexpr unsigned long kFailedFetchCooldownMs = 10UL * 60UL * 1000UL;
 // Rendering helpers (1-bit, CrossInk fonts)
 // ---------------------------------------------------------------------------
 
-static void drawClippedText(GfxRenderer& r, int font, int x, int y, const char* text, int maxW,
-                            bool black = true, EpdFontFamily::Style style = EpdFontFamily::REGULAR) {
+static void drawClippedText(const GfxRenderer& r, int font, int x, int y, const char* text, int maxW, bool black = true,
+                            EpdFontFamily::Style style = EpdFontFamily::REGULAR) {
   if (maxW > 0 && r.getTextWidth(font, text, style) > maxW) {
     std::string t = r.truncatedText(font, text, maxW, style);
     r.drawText(font, x, y, t.c_str(), black, style);
@@ -53,8 +53,8 @@ static void drawClippedText(GfxRenderer& r, int font, int x, int y, const char* 
   }
 }
 
-static void drawRightText(GfxRenderer& r, int font, int rightEdge, int y, const char* text,
-                          bool black = true, EpdFontFamily::Style style = EpdFontFamily::REGULAR) {
+static void drawRightText(const GfxRenderer& r, int font, int rightEdge, int y, const char* text, bool black = true,
+                          EpdFontFamily::Style style = EpdFontFamily::REGULAR) {
   int w = r.getTextWidth(font, text, style);
   r.drawText(font, rightEdge - w, y, text, black, style);
 }
@@ -92,9 +92,11 @@ static void renderLocalTime(char* buf, size_t n, time_t epoch, bool use24h) {
   time_t t = epoch + g_tzOffsetSeconds;
   struct tm tm;
   gmtime_r(&t, &tm);
-  if (use24h) snprintf(buf, n, "%02d:%02d", tm.tm_hour, tm.tm_min);
+  if (use24h)
+    snprintf(buf, n, "%02d:%02d", tm.tm_hour, tm.tm_min);
   else {
-    int h12 = tm.tm_hour % 12; if (h12 == 0) h12 = 12;
+    int h12 = tm.tm_hour % 12;
+    if (h12 == 0) h12 = 12;
     const char* ap = tm.tm_hour < 12 ? "am" : "pm";
     snprintf(buf, n, "%d:%02d%s", h12, tm.tm_min, ap);
   }
@@ -111,7 +113,7 @@ static const char* dayName(int wd) {
 // from the battery) and the date (bottom-right, across from the city name on
 // the title line). Only the weather screen knows about these weather-specific
 // settings, so they are drawn after GUI.drawHeader.
-static void drawWeatherHeaderExtras(GfxRenderer& renderer, const Rect& band, bool refreshing) {
+static void drawWeatherHeaderExtras(const GfxRenderer& renderer, const Rect& band, bool refreshing) {
   const auto& metrics = UITheme::getInstance().getMetrics();
   const int titleLh = renderer.getLineHeight(UI_12_FONT_ID);
   const int titleAsc = renderer.getFontAscenderSize(UI_12_FONT_ID);
@@ -156,20 +158,41 @@ static void drawWeatherHeaderExtras(GfxRenderer& renderer, const Rect& band, boo
 // 7-segment big digits
 // ---------------------------------------------------------------------------
 
-static void segDigit(GfxRenderer& r, int x, int y, int w, int h, int digit, bool black) {
-  int t = h / 7; if (t < 2) t = 2;
+static void segDigit(const GfxRenderer& r, int x, int y, int w, int h, int digit, bool black) {
+  int t = h / 7;
+  if (t < 2) t = 2;
   bool seg[7] = {false, false, false, false, false, false, false};
   switch (digit) {
-    case 0: seg[0]=seg[1]=seg[2]=seg[3]=seg[4]=seg[5]=true; break;
-    case 1: seg[1]=seg[2]=true; break;
-    case 2: seg[0]=seg[1]=seg[6]=seg[4]=seg[3]=true; break;
-    case 3: seg[0]=seg[1]=seg[6]=seg[2]=seg[3]=true; break;
-    case 4: seg[5]=seg[6]=seg[1]=seg[2]=true; break;
-    case 5: seg[0]=seg[5]=seg[6]=seg[2]=seg[3]=true; break;
-    case 6: seg[0]=seg[5]=seg[6]=seg[2]=seg[3]=seg[4]=true; break;
-    case 7: seg[0]=seg[1]=seg[2]=true; break;
-    case 8: for (int i = 0; i < 7; i++) seg[i] = true; break;
-    case 9: seg[0]=seg[1]=seg[2]=seg[3]=seg[5]=seg[6]=true; break;
+    case 0:
+      seg[0] = seg[1] = seg[2] = seg[3] = seg[4] = seg[5] = true;
+      break;
+    case 1:
+      seg[1] = seg[2] = true;
+      break;
+    case 2:
+      seg[0] = seg[1] = seg[6] = seg[4] = seg[3] = true;
+      break;
+    case 3:
+      seg[0] = seg[1] = seg[6] = seg[2] = seg[3] = true;
+      break;
+    case 4:
+      seg[5] = seg[6] = seg[1] = seg[2] = true;
+      break;
+    case 5:
+      seg[0] = seg[5] = seg[6] = seg[2] = seg[3] = true;
+      break;
+    case 6:
+      seg[0] = seg[5] = seg[6] = seg[2] = seg[3] = seg[4] = true;
+      break;
+    case 7:
+      seg[0] = seg[1] = seg[2] = true;
+      break;
+    case 8:
+      for (int i = 0; i < 7; i++) seg[i] = true;
+      break;
+    case 9:
+      seg[0] = seg[1] = seg[2] = seg[3] = seg[5] = seg[6] = true;
+      break;
   }
   int wl = w - 2 * t;
   int midy = y + (h - t) / 2;
@@ -245,9 +268,8 @@ static const char* compassDir(float deg) {
 // Each text line owns its own band: a baseline must be >= previous baseline +
 // previous descender + lineGap + next ascender, so glyph tops never reach the
 // previous line's descenders.
-static void drawStatCell(GfxRenderer& r, int x, int y, int w, int h, const char* label,
-                         const char* value, const char* sub, int sAsc, int sDesc, int mAsc,
-                         int mDesc, bool showSub) {
+static void drawStatCell(GfxRenderer& r, int x, int y, int w, int h, const char* label, const char* value,
+                         const char* sub, int sAsc, int sDesc, int mAsc, int mDesc, bool showSub) {
   const bool hasSub = showSub && sub && sub[0];
   const int smallFont = weatherFontSmall(g_settings.fontFamily);
   const int mediumFont = weatherFontMedium(g_settings.fontFamily);
@@ -262,10 +284,10 @@ static void drawStatCell(GfxRenderer& r, int x, int y, int w, int h, const char*
 
   const int labelBase = y + pad + (availH - contentH) / 2 + sAsc;  // label baseline
   drawClippedText(r, smallFont, x + 8, labelBase - sAsc, label, w - 16);
-  const int valueBase = labelBase + sDesc + mAsc + lineGap;        // value baseline
+  const int valueBase = labelBase + sDesc + mAsc + lineGap;  // value baseline
   drawClippedText(r, mediumFont, x + 8, valueBase - mAsc, value, w - 16, true, EpdFontFamily::BOLD);
   if (hasSub) {
-    const int subBase = valueBase + mDesc + sAsc + lineGap;        // sub baseline
+    const int subBase = valueBase + mDesc + sAsc + lineGap;  // sub baseline
     drawClippedText(r, smallFont, x + 8, subBase - sAsc, sub, w - 16);
   }
 }
@@ -320,12 +342,10 @@ bool WeatherActivity::preventAutoSleep() {
 
 void WeatherActivity::launchWifiSelection() {
   wifiTornDownOnExit = true;
-  startActivityForResult(std::make_unique<WifiSelectionActivity>(
-                             renderer, mappedInput, true, false, toWeatherRendererOrientation(g_settings.orientation),
-                             true),
-                         [this](const ActivityResult& result) {
-                           onWifiSelectionComplete(!result.isCancelled);
-                         });
+  startActivityForResult(
+      std::make_unique<WifiSelectionActivity>(renderer, mappedInput, true, false,
+                                              toWeatherRendererOrientation(g_settings.orientation), true),
+      [this](const ActivityResult& result) { onWifiSelectionComplete(!result.isCancelled); });
 }
 
 void WeatherActivity::onWifiSelectionComplete(bool connected) {
@@ -385,8 +405,8 @@ void WeatherActivity::doFetch() {
     renderer.releaseFramebuffers();
     bool ok = weatherFetch(pendingMask, shouldCancel);
     if (!reallocFramebufferWithRecovery(true)) {
-      LOG_ERR("MEM", "framebuffer realloc FAILED after fetch (free=%u maxAlloc=%u); screen deferred",
-              ESP.getFreeHeap(), ESP.getMaxAllocHeap());
+      LOG_ERR("MEM", "framebuffer realloc FAILED after fetch (free=%u maxAlloc=%u); screen deferred", ESP.getFreeHeap(),
+              ESP.getMaxAllocHeap());
       framebufferMissing = true;
       framebufferMissingSince = millis();
     }
@@ -547,12 +567,36 @@ void WeatherActivity::loop() {
   // disabled here). Both the short tap and the long press can be assigned an
   // action in settings (refresh, boot to CrossInk, or nothing). While the menu
   // is open the button is intentionally ignored.
+  //
+  // The long press fires WHILE the button is still held, as soon as the hold
+  // threshold is crossed, so the resulting popup (e.g. "Switching to
+  // CrossInk...") appears before the user lets go. The short tap fires on
+  // release.
+  if (mappedInput.wasPressed(MappedInputManager::Button::Power)) {
+    powerHoldFired = false;
+  }
+  if (mappedInput.isPressed(MappedInputManager::Button::Power)) {
+    if (!powerHoldFired && mappedInput.getHeldTime() >= CrossPointSettings::POWER_BUTTON_LONG_PRESS_MS) {
+      powerHoldFired = true;
+      if (state == State::SHOWING || state == State::FETCH_FAILED) {
+        switch (g_settings.powerHoldAction) {
+          case WX_POWER_REFRESH:
+            triggerManualRefresh();
+            break;
+          case WX_POWER_CROSSINK:
+            launchCrossInk();
+            break;
+          default:
+            break;
+        }
+      }
+    }
+  }
   if (mappedInput.wasReleased(MappedInputManager::Button::Power)) {
-    const uint8_t action = mappedInput.getHeldTime() >= CrossPointSettings::POWER_BUTTON_LONG_PRESS_MS
-                               ? g_settings.powerHoldAction
-                               : g_settings.powerTapAction;
-    if (state == State::SHOWING || state == State::FETCH_FAILED) {
-      switch (action) {
+    const bool holdAlreadyFired = powerHoldFired;
+    powerHoldFired = false;
+    if (!holdAlreadyFired && (state == State::SHOWING || state == State::FETCH_FAILED)) {
+      switch (g_settings.powerTapAction) {
         case WX_POWER_REFRESH:
           triggerManualRefresh();
           break;
@@ -701,16 +745,15 @@ void WeatherActivity::renderContent() {
       // element sits at its own x so no band overlaps.
       const int heroCy = heroTop + 46;
       wxIcon(renderer, contentLeft + 70, heroCy, 54, g_weather.weatherCode, g_weather.isDay, true);
-      drawBigTemp(renderer, contentLeft + usableW / 2, heroCy + 38,
-                  (int)roundf(tempValue(g_settings, g_weather.tempC)), 72);
+      drawBigTemp(renderer, contentLeft + usableW / 2, heroCy + 38, (int)roundf(tempValue(g_settings, g_weather.tempC)),
+                  72);
       if (heroCond) {
         const int condW = renderer.getTextWidth(mFont, condBuf);
         if (condW > usableW - 20) {
           drawClippedText(renderer, mFont, contentLeft + 10, heroCy + 4 - mAsc, condBuf, usableW - 20, true,
                           EpdFontFamily::BOLD);
         } else {
-          drawRightText(renderer, mFont, sw - 10, heroCy + 4 - mAsc, condBuf, true,
-                        EpdFontFamily::BOLD);
+          drawRightText(renderer, mFont, sw - 10, heroCy + 4 - mAsc, condBuf, true, EpdFontFamily::BOLD);
         }
       }
       y = heroCy + 27 + 8;
@@ -718,13 +761,11 @@ void WeatherActivity::renderContent() {
       // Vertical hero: icon left of the temp digits, condition text below the
       // digits. The digits' bottom stroke and the condition top never meet.
       wxIcon(renderer, 70, heroTop + 70, 54, g_weather.weatherCode, g_weather.isDay, true);
-      drawBigTemp(renderer, sw / 2, heroTop + 96,
-                  (int)roundf(tempValue(g_settings, g_weather.tempC)), 96);
+      drawBigTemp(renderer, sw / 2, heroTop + 96, (int)roundf(tempValue(g_settings, g_weather.tempC)), 96);
       if (heroCond) {
         const int condTop = heroTop + 96 + 4;
         const int condW = renderer.getTextWidth(mFont, condBuf);
-        drawClippedText(renderer, mFont, (sw - condW) / 2, condTop, condBuf, sw - 20, true,
-                        EpdFontFamily::BOLD);
+        drawClippedText(renderer, mFont, (sw - condW) / 2, condTop, condBuf, sw - 20, true, EpdFontFamily::BOLD);
         y = condTop + mAsc + mDesc + 8;
       } else {
         y = heroTop + 96 + 8;
@@ -734,23 +775,20 @@ void WeatherActivity::renderContent() {
       wxIcon(renderer, sw / 2, heroTop + 60, iconSize, g_weather.weatherCode, g_weather.isDay, true);
       const int condTop = heroTop + 60 + 42 + 8;
       const int condW = renderer.getTextWidth(mFont, condBuf);
-      drawClippedText(renderer, mFont, (sw - condW) / 2, condTop, condBuf, sw - 20, true,
-                      EpdFontFamily::BOLD);
+      drawClippedText(renderer, mFont, (sw - condW) / 2, condTop, condBuf, sw - 20, true, EpdFontFamily::BOLD);
       y = condTop + mAsc + mDesc + 8;
     }
   }
 
   // --- Stat grid (dynamic: only enabled blocks, flows into columns) ---
-  struct CellSpec { BlockId id; const char* label; };
+  struct CellSpec {
+    BlockId id;
+    const char* label;
+  };
   static const CellSpec cells[] = {
-    {BLK_FEELS, "Feels like"},
-    {BLK_HUM, "Humidity"},
-    {BLK_WIND, "Wind"},
-    {BLK_UV, "UV index"},
-    {BLK_AQI, "Air quality"},
-    {BLK_PRES, "Pressure"},
-    {BLK_SUN, "Sunrise/Sunset"},
-    {BLK_EXTRA, nullptr},  // label comes from the selected metric
+      {BLK_FEELS, "Feels like"},   {BLK_HUM, "Humidity"},    {BLK_WIND, "Wind"},
+      {BLK_UV, "UV index"},        {BLK_AQI, "Air quality"}, {BLK_PRES, "Pressure"},
+      {BLK_SUN, "Sunrise/Sunset"}, {BLK_EXTRA, nullptr},  // label comes from the selected metric
   };
   const int kCells = sizeof(cells) / sizeof(cells[0]);
 
@@ -796,7 +834,8 @@ void WeatherActivity::renderContent() {
     const int cy = y + row * (cellH + cellGap);
 
     char value[40], sub[32];
-    value[0] = '\0'; sub[0] = '\0';
+    value[0] = '\0';
+    sub[0] = '\0';
     const char* label = cells[i].label;
     if (!label) label = extraMetricName(g_settings.extData);
 
@@ -810,8 +849,8 @@ void WeatherActivity::renderContent() {
         snprintf(value, sizeof(value), "%d%%", (int)roundf(g_weather.humidityPct));
         break;
       case BLK_WIND:
-        snprintf(value, sizeof(value), "%d %s",
-                 (int)roundf(windSpeedValue(g_settings, g_weather.windKph)), windUnit(g_settings));
+        snprintf(value, sizeof(value), "%d %s", (int)roundf(windSpeedValue(g_settings, g_weather.windKph)),
+                 windUnit(g_settings));
         break;
       case BLK_UV:
         snprintf(value, sizeof(value), "%.1f", g_weather.uvIndex);
@@ -829,8 +868,6 @@ void WeatherActivity::renderContent() {
         if (landscape) {
           // Stacked layout in landscape: sunrise on its own line, sunset below it.
           // No daylight duration — keeps the cell shorter so the forecast isn't pushed down.
-          const int sFont = weatherFontSmall(g_settings.fontFamily);
-          const int mFont = weatherFontMedium(g_settings.fontFamily);
           const int contentH = sAsc + sDesc + lineGap + mAsc + mDesc + lineGap + mAsc + mDesc;
           int base = cy + cellPad + (cellH - 2 * cellPad - contentH) / 2 + sAsc;
           drawClippedText(renderer, sFont, cx + 8, base - sAsc, label, cellW - 16);
@@ -853,8 +890,7 @@ void WeatherActivity::renderContent() {
             snprintf(value, sizeof(value), "%.1f km", g_weather.visibilityKm);
             break;
           case EXTRA_GUST:
-            snprintf(value, sizeof(value), "%d %s",
-                     (int)roundf(windSpeedValue(g_settings, g_weather.gustKph)),
+            snprintf(value, sizeof(value), "%d %s", (int)roundf(windSpeedValue(g_settings, g_weather.gustKph)),
                      windUnit(g_settings));
             break;
           case EXTRA_PRECIP:
@@ -866,12 +902,12 @@ void WeatherActivity::renderContent() {
             break;
         }
         break;
-      default: break;
+      default:
+        break;
     }
 
     if (!useCustomDraw) {
-      drawStatCell(renderer, cx, cy, cellW, cellH, label, value, sub, sAsc, sDesc, mAsc,
-                   mDesc, showSub);
+      drawStatCell(renderer, cx, cy, cellW, cellH, label, value, sub, sAsc, sDesc, mAsc, mDesc, showSub);
     }
     idx++;
   }
@@ -901,7 +937,8 @@ void WeatherActivity::renderContent() {
       int x0 = contentLeft + i * cw;
       if (!g_weather.fcValid[i]) continue;
       char day[8];
-      if (i == 0) snprintf(day, sizeof(day), "Today");
+      if (i == 0)
+        snprintf(day, sizeof(day), "Today");
       else {
         time_t d = base + (time_t)i * 86400;
         struct tm tmd;
@@ -918,11 +955,9 @@ void WeatherActivity::renderContent() {
       formatTemp(lo, sizeof(lo), g_weather.fcMinC[i], !g_settings.useCelsius, true);
       const int hw = renderer.getTextWidth(sFont, hi);
       const int lw = renderer.getTextWidth(sFont, lo);
-      drawClippedText(renderer, sFont, x0 + (cw - hw) / 2, hiBaseline - sAsc, hi, cw - 4, true,
-                      EpdFontFamily::BOLD);
+      drawClippedText(renderer, sFont, x0 + (cw - hw) / 2, hiBaseline - sAsc, hi, cw - 4, true, EpdFontFamily::BOLD);
       drawClippedText(renderer, sFont, x0 + (cw - lw) / 2, loBaseline - sAsc, lo, cw - 4);
     }
-    y = fcTop + weatherForecastHeight(sAsc, sDesc, compact);
   }
 }
 
@@ -943,8 +978,8 @@ void WeatherActivity::renderScene() {
   // The theme clock is suppressed (drawClock=false): the weather app renders its
   // own time plus the date and the "Updating..." indicator, see
   // drawWeatherHeaderExtras. Title stays left-aligned (city name top-left).
-  GUI.drawHeader(renderer, Rect{contentLeft, metrics.topPadding, usableW, metrics.headerHeight}, title, nullptr,
-                 false, false);
+  GUI.drawHeader(renderer, Rect{contentLeft, metrics.topPadding, usableW, metrics.headerHeight}, title, nullptr, false,
+                 false);
   drawWeatherHeaderExtras(renderer, Rect{contentLeft, metrics.topPadding, usableW, metrics.headerHeight},
                           (state == State::FETCHING && g_weather.valid));
 
@@ -964,13 +999,11 @@ void WeatherActivity::renderScene() {
       const char* reason = weatherLastError();
       if (reason && reason[0]) {
         // Actionable error (e.g. missing API key) — no serial output needed.
-        renderer.drawCenteredText(UI_12_FONT_ID, midY - 30, tr(STR_WEATHER_UPDATE_FAILED), true,
-                                  EpdFontFamily::BOLD);
+        renderer.drawCenteredText(UI_12_FONT_ID, midY - 30, tr(STR_WEATHER_UPDATE_FAILED), true, EpdFontFamily::BOLD);
         renderer.drawCenteredText(UI_10_FONT_ID, midY + 2, reason);
         renderer.drawCenteredText(UI_10_FONT_ID, midY + 20, tr(STR_CHECK_SERIAL_OUTPUT), true);
       } else {
-        renderer.drawCenteredText(UI_12_FONT_ID, midY - 20, tr(STR_WEATHER_UPDATE_FAILED), true,
-                                  EpdFontFamily::BOLD);
+        renderer.drawCenteredText(UI_12_FONT_ID, midY - 20, tr(STR_WEATHER_UPDATE_FAILED), true, EpdFontFamily::BOLD);
         renderer.drawCenteredText(UI_10_FONT_ID, midY + 10, tr(STR_CHECK_SERIAL_OUTPUT));
       }
       break;
@@ -1005,10 +1038,14 @@ void WeatherActivity::renderScene() {
       Rect listRect{contentLeft, contentTop, usableW, contentBottom - contentTop};
       const auto rowTitle = [this](int index) -> std::string {
         switch (index) {
-          case 0: return tr(STR_WEATHER_UPDATE);
-          case 1: return tr(STR_WEATHER_SETTINGS);
-          case 2: return "Launch CrossInk";
-          default: return tr(STR_ABOUT);
+          case 0:
+            return tr(STR_WEATHER_UPDATE);
+          case 1:
+            return tr(STR_WEATHER_SETTINGS);
+          case 2:
+            return "Launch CrossInk";
+          default:
+            return tr(STR_ABOUT);
         }
       };
       GUI.drawList(renderer, listRect, 4, menuSelection, rowTitle);
@@ -1017,8 +1054,7 @@ void WeatherActivity::renderScene() {
     case State::SHOWING:
     default:
       if (!g_weather.valid) {
-        renderer.drawCenteredText(UI_12_FONT_ID, midY - 30, tr(STR_WEATHER_NO_DATA), true,
-                                  EpdFontFamily::BOLD);
+        renderer.drawCenteredText(UI_12_FONT_ID, midY - 30, tr(STR_WEATHER_NO_DATA), true, EpdFontFamily::BOLD);
         if (g_settings.latitude == 0.0f && g_settings.longitude == 0.0f) {
           renderer.drawCenteredText(UI_10_FONT_ID, midY, tr(STR_WEATHER_NO_LOCATION));
         }
@@ -1031,22 +1067,19 @@ void WeatherActivity::renderScene() {
 
   switch (state) {
     case State::SHOWING: {
-      drawWeatherSymbolHints(
-          renderer, mappedInput.mapSymbols(ButtonHintSymbol::Refresh, ButtonHintSymbol::Menu, ButtonHintSymbol::None,
-                                           ButtonHintSymbol::None));
+      drawWeatherSymbolHints(renderer, mappedInput.mapSymbols(ButtonHintSymbol::Refresh, ButtonHintSymbol::Menu,
+                                                              ButtonHintSymbol::None, ButtonHintSymbol::None));
       break;
     }
     case State::MENU: {
-      drawWeatherSymbolHints(
-          renderer, mappedInput.mapSymbols(ButtonHintSymbol::Back, ButtonHintSymbol::Select, ButtonHintSymbol::Up,
-                                           ButtonHintSymbol::Down));
+      drawWeatherSymbolHints(renderer, mappedInput.mapSymbols(ButtonHintSymbol::Back, ButtonHintSymbol::Select,
+                                                              ButtonHintSymbol::Up, ButtonHintSymbol::Down));
       break;
     }
     case State::FETCH_FAILED:
     case State::ABOUT: {
-      drawWeatherSymbolHints(
-          renderer, mappedInput.mapSymbols(ButtonHintSymbol::Back, ButtonHintSymbol::None, ButtonHintSymbol::None,
-                                           ButtonHintSymbol::None));
+      drawWeatherSymbolHints(renderer, mappedInput.mapSymbols(ButtonHintSymbol::Back, ButtonHintSymbol::None,
+                                                              ButtonHintSymbol::None, ButtonHintSymbol::None));
       break;
     }
     case State::FETCHING:
@@ -1077,8 +1110,8 @@ void WeatherActivity::render(RenderLock&&) {
   // multi-pass grayscale render there: navigating the menu (up/down) then uses
   // a single fast refresh instead of a full flashing refresh on every move,
   // matching the CrossInk menu behavior.
-  const bool grayscale = (state == State::SHOWING || (state == State::FETCHING && g_weather.valid)) &&
-                         g_settings.fontFamily != WX_FONT_UI;
+  const bool grayscale =
+      (state == State::SHOWING || (state == State::FETCHING && g_weather.valid)) && g_settings.fontFamily != WX_FONT_UI;
   if (grayscale) {
     // 2-bit family fonts carry 4-level anti-aliasing. Push a clean BW base,
     // then re-render once per grayscale plane so the gray glyph pixels survive.

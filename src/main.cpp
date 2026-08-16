@@ -20,9 +20,8 @@
 #include <XteinkDetect.h>
 #endif
 #include <builtinFonts/all.h>
-#include <uzlib.h>
-
 #include <sys/time.h>
+#include <uzlib.h>
 
 #ifdef SIMULATOR
 using esp_reset_reason_t = int;
@@ -98,9 +97,9 @@ inline esp_sleep_wakeup_cause_t esp_sleep_get_wakeup_cause() { return ESP_SLEEP_
 #include "activities/settings/KOReaderSettingsActivity.h"
 #endif
 #include "components/UITheme.h"
+#include "fontIds.h"
 #include "util/BootPartition.h"
 #include "weather/WeatherActivity.h"
-#include "fontIds.h"
 #ifndef INKSTORM_LEAN
 #include "network/UsbSerialFileTransfer.h"
 #endif
@@ -204,21 +203,24 @@ EpdFont charein10RegularFont(&charein_10_regular);
 EpdFont charein10BoldFont(&charein_10_bold);
 EpdFont charein10ItalicFont(&charein_10_italic);
 EpdFont charein10BoldItalicFont(&charein_10_bolditalic);
-EpdFontFamily charein10FontFamily(&charein10RegularFont, &charein10BoldFont, &charein10ItalicFont, &charein10BoldItalicFont);
+EpdFontFamily charein10FontFamily(&charein10RegularFont, &charein10BoldFont, &charein10ItalicFont,
+                                  &charein10BoldItalicFont);
 #endif
 #ifndef OMIT_SMALL_FONT
 EpdFont charein12RegularFont(&charein_12_regular);
 EpdFont charein12BoldFont(&charein_12_bold);
 EpdFont charein12ItalicFont(&charein_12_italic);
 EpdFont charein12BoldItalicFont(&charein_12_bolditalic);
-EpdFontFamily charein12FontFamily(&charein12RegularFont, &charein12BoldFont, &charein12ItalicFont, &charein12BoldItalicFont);
+EpdFontFamily charein12FontFamily(&charein12RegularFont, &charein12BoldFont, &charein12ItalicFont,
+                                  &charein12BoldItalicFont);
 #endif
 #ifndef OMIT_LARGE_FONT
 EpdFont charein16RegularFont(&charein_16_regular);
 EpdFont charein16BoldFont(&charein_16_bold);
 EpdFont charein16ItalicFont(&charein_16_italic);
 EpdFont charein16BoldItalicFont(&charein_16_bolditalic);
-EpdFontFamily charein16FontFamily(&charein16RegularFont, &charein16BoldFont, &charein16ItalicFont, &charein16BoldItalicFont);
+EpdFontFamily charein16FontFamily(&charein16RegularFont, &charein16BoldFont, &charein16ItalicFont,
+                                  &charein16BoldItalicFont);
 #endif
 
 EpdFont smallFont(&inter_8_regular);

@@ -40,6 +40,9 @@ class WeatherActivity final : public Activity {
   // are throttled (30 s apart) so a stubbornly missing framebuffer cannot spin
   // the radio into a reconnect storm.
   unsigned long lastRadioCycleMs = 0;
+  // True once a long press of the power button has already fired its action
+  // while the button is still held, so the release edge does not re-trigger it.
+  bool powerHoldFired = false;
 
   // Auto-refresh while the weather screen stays open: set when a fetch cannot
   // run (WiFi offline); cleared when a connection is (re)established.

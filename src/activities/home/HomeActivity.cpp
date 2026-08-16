@@ -2175,9 +2175,7 @@ void HomeActivity::onReadingStatsOpen() {
   }
 }
 
-void HomeActivity::onWeatherOpen() {
-  bootToInkStorm();
-}
+void HomeActivity::onWeatherOpen() { bootToInkStorm(); }
 
 void HomeActivity::onSavedItemsOpen() {
   startActivityForResult(std::make_unique<SavedItemsHomeActivity>(renderer, mappedInput),

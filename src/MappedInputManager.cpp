@@ -806,7 +806,8 @@ MappedInputManager::Labels MappedInputManager::mapLabels(const char* back, const
 }
 
 MappedInputManager::Symbols MappedInputManager::mapSymbols(const ButtonHintSymbol back, const ButtonHintSymbol confirm,
-                                                           const ButtonHintSymbol previous, const ButtonHintSymbol next) const {
+                                                           const ButtonHintSymbol previous,
+                                                           const ButtonHintSymbol next) const {
   const bool useReaderMapping = readerMode && SETTINGS.readerFrontButtonsEnabled;
   const ButtonIndex btnBack = useReaderMapping ? SETTINGS.readerFrontButtonBack : SETTINGS.frontButtonBack;
   const ButtonIndex btnConfirm = useReaderMapping ? SETTINGS.readerFrontButtonConfirm : SETTINGS.frontButtonConfirm;

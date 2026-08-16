@@ -14,12 +14,13 @@ installs to both the CrossInk (reader) and InkStorm (weather) partitions of one
 device, with partition-switching boot.
 
 - **Dual boot** — CrossInk (reader, default) on `app0`; InkStorm (weather) on `app1`.
-- **Weather app** — current conditions, forecasts, air quality, and alerts via
-  Open-Meteo or OpenWeatherMap.
+- **Weather app** — current conditions, a 5-day forecast strip, air quality,
+  and per-block refresh intervals, powered by Open-Meteo.
 - **Partition switching** — the InkStorm home menu can launch CrossInk, and the
   reader home menu can launch the weather app; sleep always returns to CrossInk.
 - **No sleep in weather** — deep sleep is fully disabled on the weather partition;
-  the power button acts as a manual weather refresh instead.
+  the power button is a configurable control (short tap and long press can each
+  refresh the weather, launch CrossInk, or do nothing).
 - **New InkStorm logo** and per-partition boot splash.
 - **Universal firmware** — one binary auto-detects Xteink X3/X4 at boot.
 

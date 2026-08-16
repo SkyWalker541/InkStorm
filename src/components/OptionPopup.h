@@ -153,8 +153,8 @@ class OptionPopup {
   // app, which uses symbols instead of text labels).
   bool processRenderSymbols(GfxRenderer& renderer, const MappedInputManager& input) const {
     if (!active) return false;
-    const auto popupSymbols = input.mapSymbols(backSymbol, ButtonHintSymbol::Select,
-                                               ButtonHintSymbol::Up, ButtonHintSymbol::Down);
+    const auto popupSymbols =
+        input.mapSymbols(backSymbol, ButtonHintSymbol::Select, ButtonHintSymbol::Up, ButtonHintSymbol::Down);
     GUI.drawButtonHintsSymbols(renderer, popupSymbols.btn1, popupSymbols.btn2, popupSymbols.btn3, popupSymbols.btn4);
     render(renderer);
     renderer.displayBuffer();

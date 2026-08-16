@@ -35,14 +35,22 @@ inline void drawWeatherButtonHints(GfxRenderer& renderer, const char* btn1, cons
 // The CCW variants therefore display exactly like the source PNGs.
 inline const uint8_t* iconForPortraitFrame(ButtonHintSymbol symbol) {
   switch (symbol) {
-    case ButtonHintSymbol::Refresh: return WxIconRefreshCCW;
-    case ButtonHintSymbol::Menu: return WxIconMenuCCW;
-    case ButtonHintSymbol::Close: return WxIconCloseCCW;
-    case ButtonHintSymbol::Select: return WxIconSelectCCW;
-    case ButtonHintSymbol::Up: return WxIconUpCCW;
-    case ButtonHintSymbol::Down: return WxIconDownCCW;
-    case ButtonHintSymbol::Back: return WxIconBackCCW;
-    default: return nullptr;
+    case ButtonHintSymbol::Refresh:
+      return WxIconRefreshCCW;
+    case ButtonHintSymbol::Menu:
+      return WxIconMenuCCW;
+    case ButtonHintSymbol::Close:
+      return WxIconCloseCCW;
+    case ButtonHintSymbol::Select:
+      return WxIconSelectCCW;
+    case ButtonHintSymbol::Up:
+      return WxIconUpCCW;
+    case ButtonHintSymbol::Down:
+      return WxIconDownCCW;
+    case ButtonHintSymbol::Back:
+      return WxIconBackCCW;
+    default:
+      return nullptr;
   }
 }
 

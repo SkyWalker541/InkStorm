@@ -33,13 +33,9 @@ const char kOpenMeteoGeocoding[] = "http://geocoding-api.open-meteo.com/v1/searc
 
 char s_error[128] = "";
 
-void setError(const char* message) {
-  snprintf(s_error, sizeof(s_error), "%s", message ? message : "");
-}
+void setError(const char* message) { snprintf(s_error, sizeof(s_error), "%s", message ? message : ""); }
 
-bool blockInMask(uint32_t mask, BlockId b) {
-  return (mask & (1u << static_cast<unsigned>(b))) != 0;
-}
+bool blockInMask(uint32_t mask, BlockId b) { return (mask & (1u << static_cast<unsigned>(b))) != 0; }
 
 // Percent-encodes a free-text query (city names contain spaces).
 std::string urlEncode(const std::string& in) {
@@ -71,8 +67,8 @@ bool httpGetJson(const std::string& url, const std::function<bool()>& shouldCanc
 // them all fetched regardless of which subset triggered the request. The AQI
 // block is its own endpoint and is marked separately.
 void markForecastBlocksFetched() {
-  const BlockId kForecastBlocks[] = {BLK_TEMP, BLK_FEELS, BLK_COND, BLK_HUM,  BLK_WIND,
-                                     BLK_UV,   BLK_PRES,  BLK_SUN,  BLK_FC,   BLK_EXTRA};
+  const BlockId kForecastBlocks[] = {BLK_TEMP, BLK_FEELS, BLK_COND, BLK_HUM, BLK_WIND,
+                                     BLK_UV,   BLK_PRES,  BLK_SUN,  BLK_FC,  BLK_EXTRA};
   for (BlockId b : kForecastBlocks) {
     markBlockFetched(b);
   }
@@ -281,35 +277,64 @@ int geoSearch(const char* query, GeoResult* results, int maxResults) {
 
 const char* wmoConditionText(int code) {
   switch (code) {
-    case 0: return "Clear";
-    case 1: return "Mainly clear";
-    case 2: return "Partly cloudy";
-    case 3: return "Overcast";
-    case 45: return "Fog";
-    case 48: return "Rime fog";
-    case 51: return "Light drizzle";
-    case 53: return "Drizzle";
-    case 55: return "Dense drizzle";
-    case 56: return "Freezing drizzle";
-    case 57: return "Freezing drizzle";
-    case 61: return "Light rain";
-    case 63: return "Rain";
-    case 65: return "Heavy rain";
-    case 66: return "Freezing rain";
-    case 67: return "Freezing rain";
-    case 71: return "Light snow";
-    case 73: return "Snow";
-    case 75: return "Heavy snow";
-    case 77: return "Snow grains";
-    case 80: return "Light showers";
-    case 81: return "Showers";
-    case 82: return "Heavy showers";
-    case 85: return "Snow showers";
-    case 86: return "Snow showers";
-    case 95: return "Thunderstorm";
-    case 96: return "Thunderstorm, hail";
-    case 99: return "Thunderstorm, hail";
-    default: return "Unknown";
+    case 0:
+      return "Clear";
+    case 1:
+      return "Mainly clear";
+    case 2:
+      return "Partly cloudy";
+    case 3:
+      return "Overcast";
+    case 45:
+      return "Fog";
+    case 48:
+      return "Rime fog";
+    case 51:
+      return "Light drizzle";
+    case 53:
+      return "Drizzle";
+    case 55:
+      return "Dense drizzle";
+    case 56:
+      return "Freezing drizzle";
+    case 57:
+      return "Freezing drizzle";
+    case 61:
+      return "Light rain";
+    case 63:
+      return "Rain";
+    case 65:
+      return "Heavy rain";
+    case 66:
+      return "Freezing rain";
+    case 67:
+      return "Freezing rain";
+    case 71:
+      return "Light snow";
+    case 73:
+      return "Snow";
+    case 75:
+      return "Heavy snow";
+    case 77:
+      return "Snow grains";
+    case 80:
+      return "Light showers";
+    case 81:
+      return "Showers";
+    case 82:
+      return "Heavy showers";
+    case 85:
+      return "Snow showers";
+    case 86:
+      return "Snow showers";
+    case 95:
+      return "Thunderstorm";
+    case 96:
+      return "Thunderstorm, hail";
+    case 99:
+      return "Thunderstorm, hail";
+    default:
+      return "Unknown";
   }
 }
 

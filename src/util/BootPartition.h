@@ -14,28 +14,21 @@
 // whichever partition was selected.
 // ---------------------------------------------------------------------------
 
-inline const esp_partition_t* getCurrentBootPartition() {
-  return esp_ota_get_boot_partition();
-}
+inline const esp_partition_t* getCurrentBootPartition() { return esp_ota_get_boot_partition(); }
 
 inline bool isRunningFromPartition(const char* label) {
   const esp_partition_t* running = esp_ota_get_running_partition();
   return running && strcmp(running->label, label) == 0;
 }
 
-inline bool isRunningCrossInk() {
-  return isRunningFromPartition("app0");
-}
+inline bool isRunningCrossInk() { return isRunningFromPartition("app0"); }
 
-inline bool isRunningInkStorm() {
-  return isRunningFromPartition("app1");
-}
+inline bool isRunningInkStorm() { return isRunningFromPartition("app1"); }
 
 // Set ota_1 (InkStorm) as the next boot partition, then restart.
 inline void bootToInkStorm() {
-  const esp_partition_t* target = esp_partition_find_first(ESP_PARTITION_TYPE_APP,
-                                                            ESP_PARTITION_SUBTYPE_APP_OTA_1,
-                                                            nullptr);
+  const esp_partition_t* target =
+      esp_partition_find_first(ESP_PARTITION_TYPE_APP, ESP_PARTITION_SUBTYPE_APP_OTA_1, nullptr);
   if (target) {
     esp_ota_set_boot_partition(target);
   }
@@ -44,9 +37,8 @@ inline void bootToInkStorm() {
 
 // Set ota_0 (CrossInk) as the next boot partition, then restart.
 inline void bootToCrossInk() {
-  const esp_partition_t* target = esp_partition_find_first(ESP_PARTITION_TYPE_APP,
-                                                            ESP_PARTITION_SUBTYPE_APP_OTA_0,
-                                                            nullptr);
+  const esp_partition_t* target =
+      esp_partition_find_first(ESP_PARTITION_TYPE_APP, ESP_PARTITION_SUBTYPE_APP_OTA_0, nullptr);
   if (target) {
     esp_ota_set_boot_partition(target);
   }

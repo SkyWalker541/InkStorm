@@ -25,9 +25,8 @@ void BootActivity::onEnter() {
   constexpr int kLogoPlusGap = 20;
   constexpr int kTextGap = 25;
 
-  const int totalContentHeight =
-      kLogoSize + kLogoPlusGap + kPlusSize + kLogoPlusGap + kLogoSize + kTextGap +
-      renderer.getLineHeight(UI_10_FONT_ID);
+  const int totalContentHeight = kLogoSize + kLogoPlusGap + kPlusSize + kLogoPlusGap + kLogoSize + kTextGap +
+                                 renderer.getLineHeight(UI_10_FONT_ID);
   const int startY = (pageHeight - totalContentHeight) / 2;
 
   if (isRunningInkStorm()) {
@@ -37,9 +36,8 @@ void BootActivity::onEnter() {
 
     // Large "+" in middle
     const int plusY = inkStormLogoY + kLogoSize + kLogoPlusGap;
-    renderer.drawCenteredText(BITTER_16_FONT_ID,
-                              plusY + kPlusSize / 2 - renderer.getLineHeight(BITTER_16_FONT_ID) / 2, "+", true,
-                              EpdFontFamily::BOLD);
+    renderer.drawCenteredText(BITTER_16_FONT_ID, plusY + kPlusSize / 2 - renderer.getLineHeight(BITTER_16_FONT_ID) / 2,
+                              "+", true, EpdFontFamily::BOLD);
 
     // CrossInk logo (bottom)
     const int crossInkLogoY = plusY + kPlusSize + kLogoPlusGap;
@@ -51,9 +49,8 @@ void BootActivity::onEnter() {
 
     // Large "+" in middle
     const int plusY = crossInkLogoY + kLogoSize + kLogoPlusGap;
-    renderer.drawCenteredText(BITTER_16_FONT_ID,
-                              plusY + kPlusSize / 2 - renderer.getLineHeight(BITTER_16_FONT_ID) / 2, "+", true,
-                              EpdFontFamily::BOLD);
+    renderer.drawCenteredText(BITTER_16_FONT_ID, plusY + kPlusSize / 2 - renderer.getLineHeight(BITTER_16_FONT_ID) / 2,
+                              "+", true, EpdFontFamily::BOLD);
 
     // InkStorm logo (bottom)
     const int inkStormLogoY = plusY + kPlusSize + kLogoPlusGap;

@@ -386,7 +386,8 @@ class GfxRenderer {
 // is currently present (already released), so nested/defensive use is safe.
 class FramebufferReleaseScope {
  public:
-  explicit FramebufferReleaseScope(GfxRenderer& renderer) : renderer_(renderer), active_(renderer.getFrameBuffer() != nullptr) {
+  explicit FramebufferReleaseScope(GfxRenderer& renderer)
+      : renderer_(renderer), active_(renderer.getFrameBuffer() != nullptr) {
     if (active_) {
       renderer_.releaseFramebuffers();
     }

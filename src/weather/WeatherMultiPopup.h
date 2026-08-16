@@ -233,9 +233,8 @@ class WeatherMultiPopup {
       if (i + 1 < rowCount) totalH += itemSpacing;
     }
 
-    const int maxDialogH =
-        std::max(layout_.rowHeight + titleLineHeight + titleGap + innerPadding * 2,
-                 pageHeight - metrics.buttonHintsHeight - metrics.optionPopupDialogSideMargin * 2);
+    const int maxDialogH = std::max(layout_.rowHeight + titleLineHeight + titleGap + innerPadding * 2,
+                                    pageHeight - metrics.buttonHintsHeight - metrics.optionPopupDialogSideMargin * 2);
     const int dialogW = std::min((maxTextWidth + innerPadding * 2 + selectionHPadding * 2 + metrics.scrollBarWidth +
                                   metrics.scrollBarRightOffset + selectionHPadding) *
                                      12 / 10,
@@ -277,8 +276,8 @@ class WeatherMultiPopup {
     layout_.firstRow = first;
     layout_.visibleRows = last - first;
 
-    const int listHeight = layout_.rowTop[last - 1] + (rows_[last - 1].isSection ? layout_.sectionRowHeight
-                                                                                  : layout_.rowHeight) -
+    const int listHeight = layout_.rowTop[last - 1] +
+                           (rows_[last - 1].isSection ? layout_.sectionRowHeight : layout_.rowHeight) -
                            layout_.rowTop[first];
     const int scrollBarGutter =
         layout_.hasHiddenRows ? metrics.scrollBarWidth + metrics.scrollBarRightOffset + selectionHPadding : 0;
@@ -317,10 +316,11 @@ class WeatherMultiPopup {
                                dh + frameThickness * 2, frameRadius + frameThickness, Color::White);
       renderer.fillRoundedRect(dx, dy, dw, dh, frameRadius, Color::Black);
       renderer.fillRoundedRect(dx + frameThickness, dy + frameThickness, dw - frameThickness * 2,
-                               dh - frameThickness * 2, frameRadius - frameThickness > 0 ? frameRadius - frameThickness : 0,
-                               Color::White);
+                               dh - frameThickness * 2,
+                               frameRadius - frameThickness > 0 ? frameRadius - frameThickness : 0, Color::White);
     } else {
-      renderer.fillRect(dx - frameThickness, dy - frameThickness, dw + frameThickness * 2, dh + frameThickness * 2, true);
+      renderer.fillRect(dx - frameThickness, dy - frameThickness, dw + frameThickness * 2, dh + frameThickness * 2,
+                        true);
       renderer.fillRect(dx, dy, dw, dh, false);
     }
 
@@ -338,10 +338,11 @@ class WeatherMultiPopup {
     y = layout.listTop;
 
     const int itemRectX = dx + layout.innerPadding;
-    const int itemRectW = std::max(1, dw - layout.innerPadding * 2 -
-                                         (layout.hasHiddenRows ? metrics.scrollBarWidth + metrics.scrollBarRightOffset +
-                                                                     metrics.optionPopupSelectionHPadding
-                                                               : 0));
+    const int itemRectW = std::max(
+        1, dw - layout.innerPadding * 2 -
+               (layout.hasHiddenRows
+                    ? metrics.scrollBarWidth + metrics.scrollBarRightOffset + metrics.optionPopupSelectionHPadding
+                    : 0));
     const int selectionRadius = metrics.optionPopupSelectionRadius;
 
     if (layout.hasHiddenRows) {

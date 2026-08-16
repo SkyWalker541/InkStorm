@@ -711,8 +711,9 @@ void MinimalTheme::drawButtonHints(GfxRenderer& renderer, const char* btn1, cons
   renderer.setOrientation(origOrientation);
 }
 
-void MinimalTheme::drawButtonHintsSymbols(GfxRenderer& renderer, const ButtonHintSymbol btn1, const ButtonHintSymbol btn2,
-                                          const ButtonHintSymbol btn3, const ButtonHintSymbol btn4) const {
+void MinimalTheme::drawButtonHintsSymbols(GfxRenderer& renderer, const ButtonHintSymbol btn1,
+                                          const ButtonHintSymbol btn2, const ButtonHintSymbol btn3,
+                                          const ButtonHintSymbol btn4) const {
   const GfxRenderer::Orientation origOrientation = renderer.getOrientation();
   renderer.setOrientation(GfxRenderer::Orientation::Portrait);
 

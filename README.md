@@ -22,7 +22,8 @@ Both partitions are required — **the two firmware files only work together.**
 - From the **CrossInk home menu**, choose **Weather** to boot the weather app.
 - From the **InkStorm home menu**, choose **Launch CrossInk** to return to the reader.
 - On the weather partition, **sleep is disabled** and the **power button** is a
-  manual refresh (short tap refreshes, long press is ignored).
+  free control — a short tap and a long press can each be set to refresh the
+  weather, launch CrossInk, or do nothing.
 
 ### What's changed from CrossInk
 
@@ -40,18 +41,24 @@ Everything else — reader features, fonts, controls, sync, supported devices �
 
 ## InkStorm Weather
 
-The InkStorm weather app shows local weather directly on your e-ink device:
+The InkStorm weather app shows local weather directly on your e-ink device.
+Weather data comes from **[Open-Meteo](https://open-meteo.com/) — it is already
+configured in this build, with **no API key needed**. Just open the weather
+app's settings and enter your **city or ZIP code** to get started.
 
-- **Dual providers** — [Open-Meteo](https://open-meteo.com/) (no API key) or
-  [OpenWeatherMap](https://openweathermap.org/) (free API key).
-- **Current conditions** — temperature, feels-like, humidity, wind, visibility,
-  UV index, pressure, dew point, and cloud cover.
-- **Hourly & daily forecasts** — 24-hour and 7-day outlook.
-- **Air quality** — real-time AQI with pollutant breakdown.
-- **Weather alerts** — severe weather with descriptions and timing.
-- **Auto-refresh** — off, manual, or every 30 seconds to 24 hours, with a cooldown after failures.
-- **Manual refresh** — short power-button tap (long press ignored).
-- **Units & location** — °C/°F toggle, search any city worldwide.
+- **Live conditions** — big current temperature, condition (icon + text,
+  day/night), feels-like, humidity, wind speed, UV index, pressure,
+  sunrise/sunset, and air quality (AQI).
+- **Daily forecast** — a 5-day strip (today + 4 days) with condition icon and
+  high/low temperatures.
+- **Extra readout** — pick one for the last grid cell: dew point, cloud cover,
+  visibility, wind gust, or precipitation.
+- **Auto-refresh** — off, manual, or every 30 seconds to 24 hours, with a
+  cooldown after failures.
+- **Manual refresh** — the back button, the menu's "Update now", or the power
+  button.
+- **Units & layout** — °C/°F, 12/24-hour clock, km/h or mph wind, portrait or
+  landscape, city search.
 
 ## Installation
 
@@ -122,8 +129,7 @@ This project builds on the work of others:
   e-reader firmware that CrossInk is forked from.
 - **[diy-esp32-epub-reader](https://github.com/atomic14/diy-esp32-epub-reader)**
   by atomic14 — the project that inspired CrossPoint.
-- **[Open-Meteo](https://open-meteo.com/)** and
-  **[OpenWeatherMap](https://openweathermap.org/)** — weather data for the
+- **[Open-Meteo](https://open-meteo.com/)** — weather data for the
   InkStorm app.
 - **[ESP-IDF](https://github.com/espressif/esp-idf)** by Espressif — the chip
   and firmware SDK.

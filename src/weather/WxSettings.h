@@ -9,18 +9,18 @@
 // update interval (0 = manual only). Blocks are the atomic unit of fetching.
 // ---------------------------------------------------------------------------
 enum BlockId : uint8_t {
-  BLK_TEMP = 0,   // Big temperature readout
-  BLK_FEELS,      // Feels-like
-  BLK_COND,       // Condition icon + text (+ day/night)
-  BLK_HUM,        // Humidity
-  BLK_WIND,       // Wind speed + direction
-  BLK_UV,         // UV / solar index
-  BLK_AQI,        // Air quality (AQI + PM2.5)
-  BLK_PRES,       // Pressure
-  BLK_SUN,        // Sunrise / sunset
-  BLK_FC,         // Daily forecast strip
-  BLK_EXTRA,      // User-selectable extra metric (see ExtraMetric)
-  BLK_CLOCK,      // Clock in header (re-render interval, no network)
+  BLK_TEMP = 0,  // Big temperature readout
+  BLK_FEELS,     // Feels-like
+  BLK_COND,      // Condition icon + text (+ day/night)
+  BLK_HUM,       // Humidity
+  BLK_WIND,      // Wind speed + direction
+  BLK_UV,        // UV / solar index
+  BLK_AQI,       // Air quality (AQI + PM2.5)
+  BLK_PRES,      // Pressure
+  BLK_SUN,       // Sunrise / sunset
+  BLK_FC,        // Daily forecast strip
+  BLK_EXTRA,     // User-selectable extra metric (see ExtraMetric)
+  BLK_CLOCK,     // Clock in header (re-render interval, no network)
   BLK_COUNT
 };
 
@@ -57,19 +57,15 @@ enum WeatherFontFamily : uint8_t {
 };
 
 // Weather screen orientation (independent of the global reader orientation).
-enum WeatherOrientation : uint8_t {
-  WX_ORIENTATION_PORTRAIT = 0,
-  WX_ORIENTATION_LANDSCAPE = 1,
-  WX_ORIENTATION_COUNT
-};
+enum WeatherOrientation : uint8_t { WX_ORIENTATION_PORTRAIT = 0, WX_ORIENTATION_LANDSCAPE = 1, WX_ORIENTATION_COUNT };
 
 // What the hardware power button does on this partition (sleep is disabled,
 // so the button is a free control). A short tap and a long press can each be
 // assigned an action independently.
 enum WeatherPowerAction : uint8_t {
-  WX_POWER_REFRESH = 0,  // manual weather refresh
-  WX_POWER_CROSSINK = 1, // boot into CrossInk (the reader partition)
-  WX_POWER_NONE = 2,     // do nothing
+  WX_POWER_REFRESH = 0,   // manual weather refresh
+  WX_POWER_CROSSINK = 1,  // boot into CrossInk (the reader partition)
+  WX_POWER_NONE = 2,      // do nothing
   WX_POWER_COUNT
 };
 
@@ -94,18 +90,18 @@ struct WxSettings {
   bool showExtra = true;
 
   // Per-block update interval indices into kIntervalSeconds
-  uint8_t intTemp = 6;    // 1h
-  uint8_t intFeels = 6;   // 1h
-  uint8_t intCond = 6;    // 1h
-  uint8_t intHum = 6;     // 1h
-  uint8_t intWind = 6;    // 1h
-  uint8_t intUv = 6;      // 1h
-  uint8_t intAqi = 8;     // 6h
-  uint8_t intPres = 8;    // 6h
-  uint8_t intSun = 10;    // 24h
-  uint8_t intFc = 7;      // 3h
-  uint8_t intExtra = 6;   // 1h
-  uint8_t intClock = 5;   // 30m (re-render only)
+  uint8_t intTemp = 6;   // 1h
+  uint8_t intFeels = 6;  // 1h
+  uint8_t intCond = 6;   // 1h
+  uint8_t intHum = 6;    // 1h
+  uint8_t intWind = 6;   // 1h
+  uint8_t intUv = 6;     // 1h
+  uint8_t intAqi = 8;    // 6h
+  uint8_t intPres = 8;   // 6h
+  uint8_t intSun = 10;   // 24h
+  uint8_t intFc = 7;     // 3h
+  uint8_t intExtra = 6;  // 1h
+  uint8_t intClock = 5;  // 30m (re-render only)
 
   // Which metric the extra (8th) cell shows (see ExtraMetric).
   uint8_t extData = EXTRA_DEWPOINT;
@@ -158,10 +154,10 @@ struct WxData {
   float usAqi = 0.0f;  // US AQI (0-500 scale)
   float pm25 = 0.0f;
   float pm10 = 0.0f;
-  float o3 = 0.0f;     // ozone (µg/m³)
-  float no2 = 0.0f;    // nitrogen dioxide (µg/m³)
-  float so2 = 0.0f;    // sulphur dioxide (µg/m³)
-  float co = 0.0f;     // carbon monoxide (µg/m³)
+  float o3 = 0.0f;   // ozone (µg/m³)
+  float no2 = 0.0f;  // nitrogen dioxide (µg/m³)
+  float so2 = 0.0f;  // sulphur dioxide (µg/m³)
+  float co = 0.0f;   // carbon monoxide (µg/m³)
 
   // Extra (8th cell) metric values — only the selected one is populated.
   float dewPointC = 0.0f;
@@ -172,7 +168,7 @@ struct WxData {
 
   int weatherCode = 0;
 
-  time_t sunrise = 0;   // epoch (UTC)
+  time_t sunrise = 0;  // epoch (UTC)
   time_t sunset = 0;
 
   static constexpr int FORECAST_DAYS = 6;
@@ -205,12 +201,12 @@ void setBlockIntervalIndex(BlockId b, uint8_t index);
 // Per-block due tracking. lastFetch is persisted across deep sleep.
 bool blockDue(BlockId b);
 time_t blockLastFetch(BlockId b);
-void markBlockFetched(BlockId b);   // sets lastFetch=now for one block
-void markAllFetched();              // after a manual "Update now"
+void markBlockFetched(BlockId b);  // sets lastFetch=now for one block
+void markAllFetched();             // after a manual "Update now"
 
 // Bitmask of blocks (1u << BlockId)
-uint32_t dueBlockMask();                 // shown + interval elapsed
-uint32_t allShownBlockMask();            // all shown blocks (for manual refresh)
+uint32_t dueBlockMask();       // shown + interval elapsed
+uint32_t allShownBlockMask();  // all shown blocks (for manual refresh)
 
 // With Open-Meteo as the only provider every block and extra metric is
 // always available (visibility is included in the current-weather response).

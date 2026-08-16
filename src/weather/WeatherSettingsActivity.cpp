@@ -15,10 +15,10 @@
 #include "activities/util/KeyboardEntryActivity.h"
 #include "components/UITheme.h"
 #include "fontIds.h"
+#include "weather/WeatherApi.h"
 #include "weather/WeatherMultiPopup.h"
 #include "weather/WeatherRenderUtils.h"
 #include "weather/WxSettings.h"
-#include "weather/WeatherApi.h"
 
 // ---------------------------------------------------------------------------
 // Block rows: Off -> Manual -> 30s -> 1m -> 5m -> ... -> 24h
@@ -26,9 +26,8 @@
 
 static constexpr int kBlockRows = 10;  // TEMP..FC (EXTRA handled by the combined row below; CLOCK by header)
 static constexpr int kListHeader = 8;  // Location, Units, Wind, Time, Date, Font, Power tap, Power hold
-static const BlockId kBlockIds[kBlockRows] = {
-    BLK_TEMP, BLK_FEELS, BLK_COND, BLK_HUM, BLK_WIND,
-    BLK_UV, BLK_AQI, BLK_PRES, BLK_SUN, BLK_FC};
+static const BlockId kBlockIds[kBlockRows] = {BLK_TEMP, BLK_FEELS, BLK_COND, BLK_HUM, BLK_WIND,
+                                              BLK_UV,   BLK_AQI,   BLK_PRES, BLK_SUN, BLK_FC};
 
 static int blockCycleState(BlockId b) {
   if (!blockShown(b)) return 0;
@@ -44,18 +43,41 @@ static const char* blockStateLabel(int state) {
 static void setBlockCycleState(BlockId b, int state) {
   if (state < 0) state = 0;
   switch (b) {
-    case BLK_TEMP:  g_settings.showTemp = state > 0; break;
-    case BLK_FEELS: g_settings.showFeelsLike = state > 0; break;
-    case BLK_COND:  g_settings.showCondition = state > 0; break;
-    case BLK_HUM:   g_settings.showHumidity = state > 0; break;
-    case BLK_WIND:  g_settings.showWind = state > 0; break;
-    case BLK_UV:    g_settings.showUv = state > 0; break;
-    case BLK_AQI:   g_settings.showAirQuality = state > 0; break;
-    case BLK_PRES:  g_settings.showPressure = state > 0; break;
-    case BLK_SUN:   g_settings.showSun = state > 0; break;
-    case BLK_FC:    g_settings.showForecast = state > 0; break;
-    case BLK_EXTRA: g_settings.showExtra = state > 0; break;
-    default: break;
+    case BLK_TEMP:
+      g_settings.showTemp = state > 0;
+      break;
+    case BLK_FEELS:
+      g_settings.showFeelsLike = state > 0;
+      break;
+    case BLK_COND:
+      g_settings.showCondition = state > 0;
+      break;
+    case BLK_HUM:
+      g_settings.showHumidity = state > 0;
+      break;
+    case BLK_WIND:
+      g_settings.showWind = state > 0;
+      break;
+    case BLK_UV:
+      g_settings.showUv = state > 0;
+      break;
+    case BLK_AQI:
+      g_settings.showAirQuality = state > 0;
+      break;
+    case BLK_PRES:
+      g_settings.showPressure = state > 0;
+      break;
+    case BLK_SUN:
+      g_settings.showSun = state > 0;
+      break;
+    case BLK_FC:
+      g_settings.showForecast = state > 0;
+      break;
+    case BLK_EXTRA:
+      g_settings.showExtra = state > 0;
+      break;
+    default:
+      break;
   }
   if (state > 0) {
     setBlockIntervalIndex(b, static_cast<uint8_t>(state - 1));
@@ -67,23 +89,35 @@ static void setBlockCycleState(BlockId b, int state) {
 
 static const char* weatherFontName(uint8_t family) {
   switch (family) {
-    case WX_FONT_LEXENDDECA: return "LexendDeca";
-    case WX_FONT_BITTER: return "Bitter";
-    case WX_FONT_CHAREINK: return "ChareInk";
-    default: return tr(STR_WEATHER_FONT_DEFAULT);
+    case WX_FONT_LEXENDDECA:
+      return "LexendDeca";
+    case WX_FONT_BITTER:
+      return "Bitter";
+    case WX_FONT_CHAREINK:
+      return "ChareInk";
+    default:
+      return tr(STR_WEATHER_FONT_DEFAULT);
   }
 }
 
 static const char* dateFormatLabel(uint8_t format) {
   switch (format) {
-    case 0: return "MM/DD/YYYY";
-    case 1: return "DD/MM/YYYY";
-    case 2: return "YYYY-MM-DD";
-    case 3: return "Jan 1, 2024";
-    case 4: return "January 1, 2024";
-    case 5: return "1 Jan 2024";
-    case 6: return "1 January 2024";
-    default: return "";
+    case 0:
+      return "MM/DD/YYYY";
+    case 1:
+      return "DD/MM/YYYY";
+    case 2:
+      return "YYYY-MM-DD";
+    case 3:
+      return "Jan 1, 2024";
+    case 4:
+      return "January 1, 2024";
+    case 5:
+      return "1 Jan 2024";
+    case 6:
+      return "1 January 2024";
+    default:
+      return "";
   }
 }
 
@@ -119,11 +153,10 @@ void WeatherSettingsActivity::startCitySearch() {
       onKeyboardResult(kb.text);
     }
   };
-  startActivityForResult(std::make_unique<KeyboardEntryActivity>(renderer, mappedInput,
-                                                                  tr(STR_WEATHER_SEARCH_TITLE), "", 63,
-                                                                  InputType::Text, 0,
-                                                                  GfxRenderer::Orientation::Portrait),
-                          handler);
+  startActivityForResult(
+      std::make_unique<KeyboardEntryActivity>(renderer, mappedInput, tr(STR_WEATHER_SEARCH_TITLE), "", 63,
+                                              InputType::Text, 0, GfxRenderer::Orientation::Portrait),
+      handler);
 }
 
 void WeatherSettingsActivity::onKeyboardResult(const std::string& text) {
@@ -138,9 +171,8 @@ void WeatherSettingsActivity::onKeyboardResult(const std::string& text) {
 
 void WeatherSettingsActivity::launchWifiSelectionForSearch(const std::string& query) {
   searchQuery = query;
-  startActivityForResult(std::make_unique<WifiSelectionActivity>(
-                             renderer, mappedInput, true, false, GfxRenderer::Orientation::Portrait,
-                             true),
+  startActivityForResult(std::make_unique<WifiSelectionActivity>(renderer, mappedInput, true, false,
+                                                                 GfxRenderer::Orientation::Portrait, true),
                          [this](const ActivityResult& result) {
                            if (!result.isCancelled) {
                              startSearch(searchQuery);
@@ -170,7 +202,11 @@ void WeatherSettingsActivity::dispatchListAction(int index) {
     return;
   }
   if (index == 1) {  // Units (temperature)
-    std::vector<std::string> options = {"\xc2\xb0" "C", "\xc2\xb0" "F"};
+    std::vector<std::string> options = {
+        "\xc2\xb0"
+        "C",
+        "\xc2\xb0"
+        "F"};
     optionPopup.show(StrId::STR_WEATHER_UNITS, options, g_settings.useCelsius ? 0 : 1, [this](int i) {
       g_settings.useCelsius = i == 0;
       settingsSave();
@@ -198,9 +234,15 @@ void WeatherSettingsActivity::dispatchListAction(int index) {
     groups.push_back({"Refresh", refreshOptions, g_settings.intClock});
     multiPopup.show("Time", groups, [this](int group, int option) {
       switch (group) {
-        case 0: g_settings.showClock = (option == 0); break;
-        case 1: g_settings.use24h = (option == 0); break;
-        case 2: setBlockIntervalIndex(BLK_CLOCK, static_cast<uint8_t>(option)); break;
+        case 0:
+          g_settings.showClock = (option == 0);
+          break;
+        case 1:
+          g_settings.use24h = (option == 0);
+          break;
+        case 2:
+          setBlockIntervalIndex(BLK_CLOCK, static_cast<uint8_t>(option));
+          break;
       }
       settingsSave();
     });
@@ -215,8 +257,12 @@ void WeatherSettingsActivity::dispatchListAction(int index) {
     groups.push_back({"Format", formatOptions, g_settings.dateFormat});
     multiPopup.show("Date", groups, [this](int group, int option) {
       switch (group) {
-        case 0: g_settings.showDate = (option == 0); break;
-        case 1: g_settings.dateFormat = static_cast<uint8_t>(option); break;
+        case 0:
+          g_settings.showDate = (option == 0);
+          break;
+        case 1:
+          g_settings.dateFormat = static_cast<uint8_t>(option);
+          break;
       }
       settingsSave();
     });
@@ -437,16 +483,26 @@ void WeatherSettingsActivity::render(RenderLock&&) {
           renderer, listRect, itemCount, selection,
           [this](int index) -> std::string {
             switch (index) {
-              case 0: return tr(STR_WEATHER_LOCATION);
-              case 1: return tr(STR_WEATHER_UNITS);
-              case 2: return tr(STR_WEATHER_WIND_SPEED);
-              case 3: return tr(STR_WEATHER_TIME);
-              case 4: return tr(STR_WEATHER_DATE);
-              case 5: return tr(STR_WEATHER_FONT);
-              case 6: return tr(STR_WEATHER_POWER_TAP);
-              case 7: return tr(STR_WEATHER_POWER_HOLD);
-              case kListHeader + kBlockRows: return tr(STR_WEATHER_EXTRA_DATA);
-              default: return blockName(kBlockIds[index - kListHeader]);
+              case 0:
+                return tr(STR_WEATHER_LOCATION);
+              case 1:
+                return tr(STR_WEATHER_UNITS);
+              case 2:
+                return tr(STR_WEATHER_WIND_SPEED);
+              case 3:
+                return tr(STR_WEATHER_TIME);
+              case 4:
+                return tr(STR_WEATHER_DATE);
+              case 5:
+                return tr(STR_WEATHER_FONT);
+              case 6:
+                return tr(STR_WEATHER_POWER_TAP);
+              case 7:
+                return tr(STR_WEATHER_POWER_HOLD);
+              case kListHeader + kBlockRows:
+                return tr(STR_WEATHER_EXTRA_DATA);
+              default:
+                return blockName(kBlockIds[index - kListHeader]);
             }
           },
           nullptr, nullptr,
@@ -455,7 +511,10 @@ void WeatherSettingsActivity::render(RenderLock&&) {
               case 0:
                 return g_settings.locationName[0] ? g_settings.locationName : tr(STR_WEATHER_NO_LOCATION);
               case 1:
-                return g_settings.useCelsius ? "\xc2\xb0" "C" : "\xc2\xb0" "F";
+                return g_settings.useCelsius ? "\xc2\xb0"
+                                               "C"
+                                             : "\xc2\xb0"
+                                               "F";
               case 2:
                 return g_settings.useMph ? "mph" : "km/h";
               case 3:
@@ -486,9 +545,8 @@ void WeatherSettingsActivity::render(RenderLock&&) {
   switch (state) {
     case State::LIST:
     case State::RESULTS: {
-      drawWeatherSymbolHints(
-          renderer, mappedInput.mapSymbols(ButtonHintSymbol::Close, ButtonHintSymbol::Select, ButtonHintSymbol::Up,
-                                           ButtonHintSymbol::Down));
+      drawWeatherSymbolHints(renderer, mappedInput.mapSymbols(ButtonHintSymbol::Close, ButtonHintSymbol::Select,
+                                                              ButtonHintSymbol::Up, ButtonHintSymbol::Down));
       break;
     }
     case State::SEARCHING:

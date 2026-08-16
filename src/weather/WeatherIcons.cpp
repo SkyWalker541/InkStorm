@@ -115,19 +115,19 @@ static void drawSnowDots(GfxRenderer& r, int cx, int cy, int s, bool black) {
   }
 }
 
-static void drawBolt(GfxRenderer& r, int cx, int cy, int s, bool black) {
-  int x1 = cx + s / 6,  y1 = cy - s / 5;
-  int x2 = cx - s / 6,  y2 = cy + s / 10;
+static void drawBolt(const GfxRenderer& r, int cx, int cy, int s, bool black) {
+  int x1 = cx + s / 6, y1 = cy - s / 5;
+  int x2 = cx - s / 6, y2 = cy + s / 10;
   int x3 = cx - s / 12, y3 = cy + s / 10;
   int x4 = cx - s / 10, y4 = cy + s / 4;
-  int x5 = cx + s / 4,  y5 = cy - s / 10;
+  int x5 = cx + s / 4, y5 = cy - s / 10;
   int x6 = cx + s / 12, y6 = cy - s / 10;
-  int xs[6] = {x1, x2, x3, x4, x5, x6};
-  int ys[6] = {y1, y2, y3, y4, y5, y6};
+  const int xs[6] = {x1, x2, x3, x4, x5, x6};
+  const int ys[6] = {y1, y2, y3, y4, y5, y6};
   r.fillPolygon(xs, ys, 6, black);
 }
 
-static void drawFogLines(GfxRenderer& r, int cx, int cy, int s, bool black) {
+static void drawFogLines(const GfxRenderer& r, int cx, int cy, int s, bool black) {
   int y0 = cy + s * 10 / 100;
   int w = s / 2;
   for (int i = 0; i < 3; i++) {
@@ -198,20 +198,23 @@ static int iconFitSize(int size, int wmoCode, bool isDay, bool small) {
   return fit;
 }
 
-static void drawGlyph(GfxRenderer& r, int cx, int cy, int size, int wmoCode, bool isDay, bool black,
-                      bool small) {
+static void drawGlyph(GfxRenderer& r, int cx, int cy, int size, int wmoCode, bool isDay, bool black, bool small) {
   const int s = iconFitSize(size, wmoCode, isDay, small);
   switch (wmoCode) {
     case 0:
     case 1:
-      if (isDay) drawSun(r, cx, cy, s, black);
-      else drawMoon(r, cx, cy, s, black);
+      if (isDay)
+        drawSun(r, cx, cy, s, black);
+      else
+        drawMoon(r, cx, cy, s, black);
       break;
 
     case 2:
       // Partly cloudy: small sun/moon upper-left + cloud
-      if (isDay) drawSun(r, cx - s / 4, cy - s / 4, s * 7 / 10, black);
-      else drawMoon(r, cx - s / 4, cy - s / 4, s * 7 / 10, black);
+      if (isDay)
+        drawSun(r, cx - s / 4, cy - s / 4, s * 7 / 10, black);
+      else
+        drawMoon(r, cx - s / 4, cy - s / 4, s * 7 / 10, black);
       drawCloudBody(r, cx + s / 8, cy + s / 8, s * 7 / 10, black);
       break;
 
@@ -254,8 +257,10 @@ static void drawGlyph(GfxRenderer& r, int cx, int cy, int size, int wmoCode, boo
     case 80:
     case 81:
     case 82:
-      if (isDay) drawSun(r, cx - s / 4, cy - s / 4, s * 6 / 10, black);
-      else drawMoon(r, cx - s / 4, cy - s / 4, s * 6 / 10, black);
+      if (isDay)
+        drawSun(r, cx - s / 4, cy - s / 4, s * 6 / 10, black);
+      else
+        drawMoon(r, cx - s / 4, cy - s / 4, s * 6 / 10, black);
       drawCloudBody(r, cx + s / 8, cy - s / 6, s * 7 / 10, black);
       drawRainDrops(r, cx + s / 8, cy, s * 8 / 10, black);
       break;
@@ -274,8 +279,10 @@ static void drawGlyph(GfxRenderer& r, int cx, int cy, int size, int wmoCode, boo
       break;
 
     default:
-      if (small) drawCloudBody(r, cx, cy, s, black);
-      else drawSun(r, cx, cy, s, black);
+      if (small)
+        drawCloudBody(r, cx, cy, s, black);
+      else
+        drawSun(r, cx, cy, s, black);
       break;
   }
 }
@@ -290,17 +297,42 @@ void wxIconSmall(GfxRenderer& r, int cx, int cy, int size, int wmoCode, bool bla
 
 const char* wxIconLabel(int wmoCode) {
   switch (wmoCode) {
-    case 0:  return "Clear";
-    case 1:  return "Clear";
-    case 2:  return "Partly";
-    case 3:  return "Overcast";
+    case 0:
+      return "Clear";
+    case 1:
+      return "Clear";
+    case 2:
+      return "Partly";
+    case 3:
+      return "Overcast";
     case 45:
-    case 48: return "Fog";
-    case 51: case 53: case 55: case 56: case 57: return "Drizzle";
-    case 61: case 63: case 65: case 66: case 67: return "Rain";
-    case 71: case 73: case 75: case 77: return "Snow";
-    case 80: case 81: case 82: return "Showers";
-    case 85: case 86: return "Snow";
-    default: return "Storm";
+    case 48:
+      return "Fog";
+    case 51:
+    case 53:
+    case 55:
+    case 56:
+    case 57:
+      return "Drizzle";
+    case 61:
+    case 63:
+    case 65:
+    case 66:
+    case 67:
+      return "Rain";
+    case 71:
+    case 73:
+    case 75:
+    case 77:
+      return "Snow";
+    case 80:
+    case 81:
+    case 82:
+      return "Showers";
+    case 85:
+    case 86:
+      return "Snow";
+    default:
+      return "Storm";
   }
 }

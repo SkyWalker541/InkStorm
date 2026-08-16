@@ -7,6 +7,7 @@
 #include <HalPowerManager.h>
 #include <HalStorage.h>
 #include <Logging.h>
+#include <Utf8.h>
 
 #include <algorithm>
 #include <cctype>
@@ -14,8 +15,6 @@
 #include <cstdio>
 #include <string>
 #include <vector>
-
-#include <Utf8.h>
 
 #include "CrossPointSettings.h"
 #include "DeviceCapabilities.h"
@@ -41,8 +40,7 @@ constexpr int detachedHeaderBatteryTopInset = 5;
 // only the word renders in the vertical strip.
 std::string stripLeadingBackArrow(const char* label) {
   std::string out = label ? label : "";
-  if (out.size() >= 2 && static_cast<unsigned char>(out[0]) == 0xC2 &&
-      static_cast<unsigned char>(out[1]) == 0xAB) {
+  if (out.size() >= 2 && static_cast<unsigned char>(out[0]) == 0xC2 && static_cast<unsigned char>(out[1]) == 0xAB) {
     out.erase(0, 2);
     if (!out.empty() && out[0] == ' ') {
       out.erase(0, 1);
@@ -325,8 +323,8 @@ void BaseTheme::drawHintSymbol(GfxRenderer& renderer, const Rect& portraitBox, c
       thick(bx + m, by + 3, bx + s - 4, by + 8);  // top barb
       break;
     case ButtonHintSymbol::Down:
-      thick(bx + m, by + 3, bx + m, by + s - 3);  // shaft
-      thick(bx + 4, by + s - 8, bx + m, by + s - 3);  // bottom barb
+      thick(bx + m, by + 3, bx + m, by + s - 3);          // shaft
+      thick(bx + 4, by + s - 8, bx + m, by + s - 3);      // bottom barb
       thick(bx + m, by + s - 3, bx + s - 4, by + s - 8);  // bottom barb
       break;
     case ButtonHintSymbol::Select:
