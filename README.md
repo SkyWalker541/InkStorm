@@ -49,7 +49,7 @@ The InkStorm weather app shows local weather directly on your e-ink device:
 - **Hourly & daily forecasts** — 24-hour and 7-day outlook.
 - **Air quality** — real-time AQI with pollutant breakdown.
 - **Weather alerts** — severe weather with descriptions and timing.
-- **Auto-refresh** — off, manual, or every 1–6 hours, with a cooldown after failures.
+- **Auto-refresh** — off, manual, or every 30 seconds to 24 hours, with a cooldown after failures.
 - **Manual refresh** — short power-button tap (long press ignored).
 - **Units & location** — °C/°F toggle, search any city worldwide.
 
